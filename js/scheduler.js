@@ -4,14 +4,12 @@ $("#create").on("click", function() {
   var team_length = $('#teams').val()
   var event_length = $('#events').val()
   var rounds_length = calculate_rounds_length(team_length, event_length)
-  output_schdule_header(event_length);
+  output_schedule_header(event_length);
   var schedule = []
   schedule.rounds = initialize_rounds(rounds_length, event_length, num_of_teams)
-
-  debugger
-  rounds=[]
   for(var roundCounter=0; roundCounter < rounds_length; roundCounter++){
     events = []
+    var extend = roundCounter
     for(var eventCounter=0; eventCounter < event_length; eventCounter++){
       teams = []
       for(var teamCounter=0; teamCounter < num_of_teams; teamCounter++){
@@ -21,19 +19,15 @@ $("#create").on("click", function() {
         }
         teams.push(team)
       }
-      events.push({
+      schedule.rounds[extend].events[eventCounter]= {
         eventName: "Event "+(eventCounter+1),
         team1: teams[0],
         team2: teams[1]
-      })
+      }
     }
-    rounds.push({
-      roundName: "Round "+(roundCounter+1),
-      events: events
-    })
   }
-  schedule.rounds = rounds
   console.log(schedule)
+  output_schedule_body(schedule);
 })
 
 function calculate_rounds_length(team_length, event_length){
@@ -48,14 +42,27 @@ function calculate_rounds_length(team_length, event_length){
   return result
 }
 
-function output_schdule_header(event_length){
+function output_schedule_header(event_length){
   $("#results").append("<div id='schedule' class='container'></div>")
+
   $("#schedule").append("<th></th>")
   for(var i=1; i <= event_length; i++){
-    $("#schedule").append("<th>Game "+i+"</th>")
+    $("#schedule").append("<th>Event "+i+"</th>")
   }
+
 }
 
+function output_schedule_body(schedule){
+  for(var i=0; i<schedule.rounds.length; i++){
+    $("#schedule").append("<tr>")
+    $("#schedule").append("<td>"+schedule.rounds[i].roundName+"</td>")
+    for(var j=0; j<schedule.rounds[i].events.length; j++){
+      $("#schedule").append("<td>Team "+schedule.rounds[i].events[j].team1+" & Team "+schedule.rounds[i].events[j].team2+"</td>")
+    }
+    $("#schedule").append("</tr>")
+  }
+
+}
 function already_in_round(team, roundCounter, schedule){
   var result = false
   if(schedule.rounds[roundCounter] != undefined){
@@ -63,7 +70,7 @@ function already_in_round(team, roundCounter, schedule){
     outerloop:
     for(var i=0; i<round.events.length; i++){
       var event = round.events[i]
-      if(event.team1 == team || event.team2 == team){
+      if(event.team1 === team || event.team2 === team){
         result = true
         break outerloop
       }
@@ -77,8 +84,8 @@ function already_in_event(team, eventCounter, schedule){
   if(schedule.rounds != undefined){
     outerloop:
     for(var i=0; i<schedule.rounds.length;i++){
-      event = schedule.rounds[i].events[eventCounter]
-      if(event.team1 == team || event.team2 == team){
+      var event = schedule.rounds[i].events[eventCounter]
+      if(event.team1 === team || event.team2 === team){
         result = true
         break outerloop
       }
