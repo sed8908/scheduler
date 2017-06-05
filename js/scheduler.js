@@ -5,35 +5,67 @@ $("#create").on("click", function() {
   var event_length = $('#events').val()
   var rounds_length = calculate_rounds_length(team_length, event_length)
   output_schedule_header(event_length);
-  var schedule = []
+  var schedule = new Array()
   schedule.rounds = initialize_rounds(rounds_length, event_length, num_of_teams)
+  main:
   for(var roundCounter=0; roundCounter < rounds_length; roundCounter++){
-    events = []
-    var extend = roundCounter
     for(var eventCounter=0; eventCounter < event_length; eventCounter++){
-      teams = []
       for(var teamCounter=0; teamCounter < num_of_teams; teamCounter++){
         var team = getRandomInt(0, team_length)
-        while(already_in_round(team, roundCounter, schedule) || already_in_event(team, eventCounter, schedule) || teams.includes(team)){
+        var safetyCheck = 0
+        var clearedCheck = 0
+          while(schedule.rounds[roundCounter].events[eventCounter].teams.length < 2){
+          debugger
           team = getRandomInt(0, team_length)
+          var passedCheck = team_is_free(team, eventCounter, roundCounter, schedule)
+          if(passedCheck == true){
+            schedule.rounds[roundCounter].events[eventCounter].teams.push(team)
+          }
+          safetyCheck++
+          if(safetyCheck > 100){
+            clearedCheck++
+            schedule = clearRound(schedule, roundCounter)
+            teamCounter=0;
+            eventCounter=0;
+            safetyCheck = 0;
+            if(clearedCheck > 15){
+              break main
+            }
+          }
         }
-        teams.push(team)
-      }
-      schedule.rounds[extend].events[eventCounter]= {
-        eventName: "Event "+(eventCounter+1),
-        team1: teams[0],
-        team2: teams[1]
       }
     }
   }
-  console.log(schedule)
   output_schedule_body(schedule);
 })
 
+function team_is_free(team, eventCounter, roundCounter, schedule){
+  var result = true
+  if(already_in_round(team, roundCounter, schedule)){
+    result = false
+  }
+  if(already_in_event(team, eventCounter, schedule)){
+    result = false
+  }
+  return result
+}
+
+function clearRound(schedule, roundCounter){
+  for(var i=0; i < schedule.rounds[roundCounter].events.length;i++){
+      schedule.rounds[roundCounter].events[i] ={
+        eventName: "Event "+(i+1),
+        teams: []
+      }
+  }
+  return schedule
+}
+
 function calculate_rounds_length(team_length, event_length){
   var result = 0
+  team_length = parseInt(team_length)
+  event_length = parseInt(event_length)
   if(team_length > event_length){
-    result = team_length/2
+    result = (team_length/2)
   }
   else {
     result = event_length
@@ -57,40 +89,46 @@ function output_schedule_body(schedule){
     $("#schedule").append("<tr>")
     $("#schedule").append("<td>"+schedule.rounds[i].roundName+"</td>")
     for(var j=0; j<schedule.rounds[i].events.length; j++){
-      $("#schedule").append("<td>Team "+schedule.rounds[i].events[j].team1+" & Team "+schedule.rounds[i].events[j].team2+"</td>")
+      // $("#schedule").append("<td>"+(parseInt(schedule.rounds[i].events[j].team1)+1)+" & "+(parseInt(schedule.rounds[i].events[j].team2)+1)+"</td>")
+      // for(var k=0; k<schedule.rounds[i].events[j].teams.length; k++){
+        $("#schedule").append("<td>"+(parseInt(schedule.rounds[i].events[j].teams[0]+1))+" & "+(parseInt(schedule.rounds[i].events[j].teams[1]+1))+"</td>")
+      // }
     }
     $("#schedule").append("</tr>")
   }
 
 }
+
 function already_in_round(team, roundCounter, schedule){
   var result = false
-  if(schedule.rounds[roundCounter] != undefined){
     var round = schedule.rounds[roundCounter]
     outerloop:
     for(var i=0; i<round.events.length; i++){
       var event = round.events[i]
-      if(event.team1 === team || event.team2 === team){
-        result = true
-        break outerloop
+      for(var j=0; j<event.teams.length; j++){
+        var eventTeam = event.teams[j]
+        if(eventTeam === team){
+          result = true
+          break outerloop
+        }
       }
     }
-  }
   return result
 }
 
 function already_in_event(team, eventCounter, schedule){
   var result = false
-  if(schedule.rounds != undefined){
     outerloop:
     for(var i=0; i<schedule.rounds.length;i++){
       var event = schedule.rounds[i].events[eventCounter]
-      if(event.team1 === team || event.team2 === team){
-        result = true
-        break outerloop
+      for(var j=0; j<event.teams.length; j++){
+        var eventTeam = event.teams[j]
+        if(eventTeam === team){
+          result = true
+          break outerloop
+        }
       }
     }
-  }
   return result
 }
 
@@ -101,12 +139,10 @@ function initialize_rounds(rounds_length, event_length, num_of_teams){
       roundName: "Round "+(i+1),
       events: []
     }
-    var events = []
     for(var j=0; j < event_length; j++){
       rounds[i].events[j] = {
         eventName: "Event "+(j+1),
-        team1: "",
-        team2: ""
+        teams: []
       }
     }
   }
