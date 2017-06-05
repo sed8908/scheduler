@@ -6,29 +6,31 @@ $("#create").on("click", function() {
   var rounds_length = calculate_rounds_length(team_length, event_length)
   output_schedule_header(event_length);
   var schedule = new Array()
-  schedule.rounds = initialize_rounds(rounds_length, event_length, num_of_teams)
+  debugger
+  schedule.rounds = initialize_rounds(rounds_length, event_length, team_length, num_of_teams)
+  schedule = add_empty_events(schedule, team_length, event_length, num_of_teams)
+  //schedule = add_bye_rounds(schedule)
   main:
   for(var roundCounter=0; roundCounter < rounds_length; roundCounter++){
+    assigned_empty = false
     for(var eventCounter=0; eventCounter < event_length; eventCounter++){
       for(var teamCounter=0; teamCounter < num_of_teams; teamCounter++){
         var team = getRandomInt(0, team_length)
         var safetyCheck = 0
         var clearedCheck = 0
           while(schedule.rounds[roundCounter].events[eventCounter].teams.length < 2){
-          debugger
+          safetyCheck++
           team = getRandomInt(0, team_length)
-          var passedCheck = team_is_free(team, eventCounter, roundCounter, schedule)
-          if(passedCheck == true){
+          if(team_is_free(team, eventCounter, roundCounter, schedule)){
             schedule.rounds[roundCounter].events[eventCounter].teams.push(team)
           }
-          safetyCheck++
-          if(safetyCheck > 100){
+          if(safetyCheck > 50){
             clearedCheck++
             schedule = clearRound(schedule, roundCounter)
             teamCounter=0;
             eventCounter=0;
             safetyCheck = 0;
-            if(clearedCheck > 15){
+            if(clearedCheck > 10){
               break main
             }
           }
@@ -38,6 +40,22 @@ $("#create").on("click", function() {
   }
   output_schedule_body(schedule);
 })
+
+function calculate_empty_events(team_length, event_length){
+  var result = 0
+  if(event_length > (team_length/2)){
+    result = event_length - (team_length/2)
+  }
+  return result
+}
+
+function calculate_bye_rounds(team_length, event_length){
+  var result = 0
+  if(event_length < (team_length/2)){
+    result = (team_length/2)-event_length
+  }
+  return result
+}
 
 function team_is_free(team, eventCounter, roundCounter, schedule){
   var result = true
@@ -52,9 +70,11 @@ function team_is_free(team, eventCounter, roundCounter, schedule){
 
 function clearRound(schedule, roundCounter){
   for(var i=0; i < schedule.rounds[roundCounter].events.length;i++){
-      schedule.rounds[roundCounter].events[i] ={
-        eventName: "Event "+(i+1),
-        teams: []
+      if(schedule.rounds[roundCounter].events[i].teams[0] != -1){
+        schedule.rounds[roundCounter].events[i] ={
+          eventName: "Event "+(i+1),
+          teams: []
+        }
       }
   }
   return schedule
@@ -64,7 +84,7 @@ function calculate_rounds_length(team_length, event_length){
   var result = 0
   team_length = parseInt(team_length)
   event_length = parseInt(event_length)
-  if(team_length > event_length){
+  if(team_length/2 >= event_length){
     result = (team_length/2)
   }
   else {
@@ -85,16 +105,24 @@ function output_schedule_header(event_length){
 }
 
 function output_schedule_body(schedule){
+  debugger
   for(var i=0; i<schedule.rounds.length; i++){
-    $("#schedule").append("<tr>")
-    $("#schedule").append("<td>"+schedule.rounds[i].roundName+"</td>")
+    $("#schedule").append("<tr id='round"+i+"'></tr>")
+    $("#round"+i).append("<td>"+schedule.rounds[i].roundName+"</td>")
     for(var j=0; j<schedule.rounds[i].events.length; j++){
-      // $("#schedule").append("<td>"+(parseInt(schedule.rounds[i].events[j].team1)+1)+" & "+(parseInt(schedule.rounds[i].events[j].team2)+1)+"</td>")
-      // for(var k=0; k<schedule.rounds[i].events[j].teams.length; k++){
-        $("#schedule").append("<td>"+(parseInt(schedule.rounds[i].events[j].teams[0]+1))+" & "+(parseInt(schedule.rounds[i].events[j].teams[1]+1))+"</td>")
-      // }
+      $("#round"+i).append("<td id='r"+i+"e"+j+"'></td>")
+      for(var k=0; k<schedule.rounds[i].events[j].teams.length; k++){
+        var team = schedule.rounds[i].events[j].teams[k]
+        if(team < 0){
+          $("#r"+i+"e"+j).append("-")
+        }else{
+          $("#r"+i+"e"+j).append(parseInt(team)+1)
+        }
+        if(k < schedule.rounds[i].events[j].teams.length-1){
+          $("#r"+i+"e"+j).append(" & ")
+        }
+      }
     }
-    $("#schedule").append("</tr>")
   }
 
 }
@@ -132,7 +160,7 @@ function already_in_event(team, eventCounter, schedule){
   return result
 }
 
-function initialize_rounds(rounds_length, event_length, num_of_teams){
+function initialize_rounds(rounds_length, event_length, team_length, num_of_teams){
   var rounds = []
   for(var i=0; i < rounds_length; i++){
     rounds[i] = {
@@ -147,6 +175,25 @@ function initialize_rounds(rounds_length, event_length, num_of_teams){
     }
   }
   return rounds
+}
+
+function add_empty_events(schedule,team_length, event_length, num_of_teams){
+  var empty_events = calculate_empty_events(team_length, event_length)
+  // var bye_rounds = calculate_bye_rounds(team_length, event_length)
+  if(empty_events != 0){
+    for(var roundCounter=0; roundCounter <schedule.rounds.length; roundCounter++){
+      for(var i=0; i < empty_events; i++){
+        var eventCounter = roundCounter+i
+        if(eventCounter >= schedule.rounds[roundCounter].events.length){
+          eventCounter = eventCounter - event_length
+        }
+        for(var j=0; j < num_of_teams; j++){
+          schedule.rounds[roundCounter].events[eventCounter].teams.push(-1)
+        }
+      }
+    }
+  }
+  return schedule
 }
 
 function getRandomInt(min, max) {
