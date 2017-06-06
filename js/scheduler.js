@@ -1,27 +1,25 @@
 $("#create").on("click", function() {
   $("#results").empty()
-  var num_of_teams = 2
-  var team_length = $('#teams').val()
-  var event_length = $('#events').val()
-  var rounds_length = calculate_rounds_length(team_length, event_length)
-  output_schedule_header(event_length);
+  var numOfTeams = 2 //TODO: replace with an input
+  var teamLength = $('#teams').val()
+  var eventLength = $('#events').val()
+  var roundsLength = calculateRoundsLength(teamLength, eventLength)
+  outputScheduleHeader(eventLength);
   var schedule = new Array()
-  debugger
-  schedule.rounds = initialize_rounds(rounds_length, event_length, team_length, num_of_teams)
-  schedule = add_empty_events(schedule, team_length, event_length, num_of_teams)
-  //schedule = add_bye_rounds(schedule)
+  schedule.rounds = initializeRounds(roundsLength, eventLength, teamLength, numOfTeams)
+  schedule = addEmptyEvents(schedule, teamLength, eventLength, numOfTeams)
+  //schedule = addByeRounds(schedule)
   main:
-  for(var roundCounter=0; roundCounter < rounds_length; roundCounter++){
-    assigned_empty = false
-    for(var eventCounter=0; eventCounter < event_length; eventCounter++){
-      for(var teamCounter=0; teamCounter < num_of_teams; teamCounter++){
-        var team = getRandomInt(0, team_length)
+  for(var roundCounter=0; roundCounter < roundsLength; roundCounter++){
+    for(var eventCounter=0; eventCounter < eventLength; eventCounter++){
+      for(var teamCounter=0; teamCounter < numOfTeams; teamCounter++){
+        var team = getRandomInt(0, teamLength)
         var safetyCheck = 0
         var clearedCheck = 0
-          while(schedule.rounds[roundCounter].events[eventCounter].teams.length < 2){
+        while(schedule.rounds[roundCounter].events[eventCounter].teams.length < 2){
           safetyCheck++
-          team = getRandomInt(0, team_length)
-          if(team_is_free(team, eventCounter, roundCounter, schedule)){
+          team = getRandomInt(0, teamLength)
+          if(teamIsFree(team, eventCounter, roundCounter, schedule)){
             schedule.rounds[roundCounter].events[eventCounter].teams.push(team)
           }
           if(safetyCheck > 50){
@@ -38,31 +36,31 @@ $("#create").on("click", function() {
       }
     }
   }
-  output_schedule_body(schedule);
+  outputScheduleBody(schedule);
 })
 
-function calculate_empty_events(team_length, event_length){
+function calculateEmptyEvents(teamLength, eventLength){
   var result = 0
-  if(event_length > (team_length/2)){
-    result = event_length - (team_length/2)
+  if(eventLength > (teamLength/2)){
+    result = eventLength - (teamLength/2)
   }
   return result
 }
 
-function calculate_bye_rounds(team_length, event_length){
+function calculateByeRounds(teamLength, eventLength){
   var result = 0
-  if(event_length < (team_length/2)){
-    result = (team_length/2)-event_length
+  if(eventLength < (teamLength/2)){
+    result = (teamLength/2)-eventLength
   }
   return result
 }
 
-function team_is_free(team, eventCounter, roundCounter, schedule){
+function teamIsFree(team, eventCounter, roundCounter, schedule){
   var result = true
-  if(already_in_round(team, roundCounter, schedule)){
+  if(alreadyInRound(team, roundCounter, schedule)){
     result = false
   }
-  if(already_in_event(team, eventCounter, schedule)){
+  if(alreadyInEvent(team, eventCounter, schedule)){
     result = false
   }
   return result
@@ -80,32 +78,31 @@ function clearRound(schedule, roundCounter){
   return schedule
 }
 
-function calculate_rounds_length(team_length, event_length){
+function calculateRoundsLength(teamLength, eventLength){
   var result = 0
-  team_length = parseInt(team_length)
-  event_length = parseInt(event_length)
-  if(team_length/2 >= event_length){
-    result = (team_length/2)
+  teamLength = parseInt(teamLength)
+  eventLength = parseInt(eventLength)
+  if(teamLength/2 >= eventLength){
+    result = (teamLength/2)
   }
   else {
-    result = event_length
+    result = eventLength
   }
   result = Math.ceil(result)
   return result
 }
 
-function output_schedule_header(event_length){
-  $("#results").append("<div id='schedule' class='container'></div>")
+function outputScheduleHeader(eventLength){
+  $("#results").append("<table id='schedule' class='container'></table>")
 
-  $("#schedule").append("<th></th>")
-  for(var i=1; i <= event_length; i++){
+  // $("#schedule").append("<th></th>")
+  for(var i=1; i <= eventLength; i++){
     $("#schedule").append("<th>Event "+i+"</th>")
   }
 
 }
 
-function output_schedule_body(schedule){
-  debugger
+function outputScheduleBody(schedule){
   for(var i=0; i<schedule.rounds.length; i++){
     $("#schedule").append("<tr id='round"+i+"'></tr>")
     $("#round"+i).append("<td>"+schedule.rounds[i].roundName+"</td>")
@@ -127,7 +124,7 @@ function output_schedule_body(schedule){
 
 }
 
-function already_in_round(team, roundCounter, schedule){
+function alreadyInRound(team, roundCounter, schedule){
   var result = false
     var round = schedule.rounds[roundCounter]
     outerloop:
@@ -144,7 +141,7 @@ function already_in_round(team, roundCounter, schedule){
   return result
 }
 
-function already_in_event(team, eventCounter, schedule){
+function alreadyInEvent(team, eventCounter, schedule){
   var result = false
     outerloop:
     for(var i=0; i<schedule.rounds.length;i++){
@@ -160,14 +157,14 @@ function already_in_event(team, eventCounter, schedule){
   return result
 }
 
-function initialize_rounds(rounds_length, event_length, team_length, num_of_teams){
+function initializeRounds(roundsLength, eventLength, teamLength, numOfTeams){
   var rounds = []
-  for(var i=0; i < rounds_length; i++){
+  for(var i=0; i < roundsLength; i++){
     rounds[i] = {
       roundName: "Round "+(i+1),
       events: []
     }
-    for(var j=0; j < event_length; j++){
+    for(var j=0; j < eventLength; j++){
       rounds[i].events[j] = {
         eventName: "Event "+(j+1),
         teams: []
@@ -177,17 +174,17 @@ function initialize_rounds(rounds_length, event_length, team_length, num_of_team
   return rounds
 }
 
-function add_empty_events(schedule,team_length, event_length, num_of_teams){
-  var empty_events = calculate_empty_events(team_length, event_length)
-  // var bye_rounds = calculate_bye_rounds(team_length, event_length)
-  if(empty_events != 0){
+function addEmptyEvents(schedule,teamLength, eventLength, numOfTeams){
+  var emptyEvents = calculateEmptyEvents(teamLength, eventLength)
+  // var byeRounds = calculateByeRounds(teamLength, eventLength)
+  if(emptyEvents != 0){
     for(var roundCounter=0; roundCounter <schedule.rounds.length; roundCounter++){
-      for(var i=0; i < empty_events; i++){
+      for(var i=0; i < emptyEvents; i++){
         var eventCounter = roundCounter+i
         if(eventCounter >= schedule.rounds[roundCounter].events.length){
-          eventCounter = eventCounter - event_length
+          eventCounter = eventCounter - eventLength
         }
-        for(var j=0; j < num_of_teams; j++){
+        for(var j=0; j < numOfTeams; j++){
           schedule.rounds[roundCounter].events[eventCounter].teams.push(-1)
         }
       }
