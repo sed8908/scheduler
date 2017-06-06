@@ -180,7 +180,6 @@ function getRandomInt(min, max) {
 }
 
 function outputSchedule(schedule){
-  console.log(schedule)
   $("#results").append("<table id='schedule' class='container'></table>")
   for(var i=0; i < schedule.rounds[0].events.length; i++){
     $("#schedule").append("<th>"+schedule.rounds[0].events[i].eventName+"</th>")
