@@ -6,6 +6,10 @@ tr, td, th{
   text-align: center !important;
 }
 
-#schedule{
-  text-align: center;
+#radioButtons{
+  text-align: left;
+}
+
+ul{
+  list-style-type:none
 }

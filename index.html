@@ -7,17 +7,49 @@
   </head>
   <body>
     <h1>Schedule Generator!</h1>
-      <div>
-        <label for="teams">How many teams are participating?</label>
-        <input type="number" id="teams"/>
+    <div id="questions">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="row">
+              <label class="col-sm-12" for="teams">How many teams are participating?</label>
+            </div>
+            <div class="row">
+              <div class="col-sm-3"></div>
+              <input class="col-sm-6" type="number" id="teams"/>
+              <div class="col-sm-3"></div>
+            </div>
+          </div>
+          <div class="col-sm-5">
+            <div class="row">
+              <label class="col-sm-12" for="teams">How many events are there?</label>
+            </div>
+            <div class="row">
+              <div class="col-sm-3"></div>
+              <input class="col-sm-6" type="number" id="events"/>
+              <div class="col-sm-3"></div>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <form>
+              <div id="radioButtons">
+                <label>Enter names:</label>
+                <div class="radio">
+                  <label class="option"><input type="radio" name="option" value="manual"/>Manually</label>
+                </div>
+                <div class="radio">
+                  <label class="option"><input type="radio" name="option" value="auto"/>Automatically</label>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-      <div>
-        <label for="teams">How many events are there?</label>
-        <input type="number" id="events"/>
-      </div>
-      <button id="create" class="btn btn-primary">Create Schedule</button>
-      <div id="results">
-      </div>
+
+      <button id="teamEntry" class="btn btn-primary">Next Question</button>
+    </div>
+    <div id="results">
+    </div>
 
   </body>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>

@@ -1,9 +1,86 @@
-$("#create").on("click", function() {
+var numberOfTeams
+var numberOfEvents
+var numberOfRounds
+var teamNames = []
+var eventNames = []
+var teamsPerEvent = 2
+$("#teamEntry").on("click", function(){
+  numberOfTeams = $('#teams').val()
+  numberOfEvents = $('#events').val()
+  numberOfRounds = calculatenumberOfRounds(numberOfTeams, numberOfEvents)
+  var answer = $("input[name='option']:checked").val();
+
+  if(($('#teams').val() == '') || ($('#events').val() == '')){
+    alert("Whoops! You need to enter an amount for teams and events to continue.")
+  }else if(answer == "auto"){
+    createSchedule(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent)
+  } else if(answer == "manual"){
+    teamEntryPage()
+  }
+
+})
+
+$("body").on("click", "#addTeam", function(){
+  if($("#teamNames li").length == undefined || $("#teamNames li").length < 1){
+    $("#teamAppender").append(
+      '<div class="col-sm-4"></div>'+
+        '<pre class="col-sm-4 well well-sm">'+
+          '<ul id="teamNames">'+
+            '<li>'+
+              $("#teams").val()+
+            '</li>'+
+          '</ul>'+
+        '</pre>'+
+      '<div class="col-sm-4"></div>'
+    )
+  } else if($("#teamNames li").length < numberOfTeams){
+    $("#teamNames").append(
+      '<li>'+
+        $("#teams").val()+
+      '</li>'
+    )
+  }
+  teamNames = []
+  $("#teamNames li").each(function(){
+    teamNames.push($(this).text())
+  })
+  $("#teams").val("")
+  if(teamNames.length == parseInt(numberOfTeams)){
+    eventEntryPage()
+  }
+})
+
+$("body").on("click", "#addEvent", function(){
+  if($("#eventNames li").length == undefined || $("#eventNames li").length < 1){
+    $("#eventAppender").append(
+      '<div class="col-sm-4"></div>'+
+        '<pre class="col-sm-4 well well-sm">'+
+          '<ul id="eventNames">'+
+            '<li>'+
+              $("#events").val()+
+            '</li>'+
+          '</ul>'+
+        '</pre>'+
+      '<div class="col-sm-4"></div>'
+  )} else if($("#eventNames li").length < numberOfEvents){
+    $("#eventNames").append(
+      '<li>'+
+        $("#events").val()+
+      '</li>'
+    )}
+    eventNames =[]
+    $("#eventNames li").each(function(){
+      eventNames.push($(this).text())
+    })
+    $("#events").val("")
+    if(eventNames.length == parseInt(numberOfEvents)){
+      createSchedule(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent)
+    }
+
+})
+
+function createSchedule(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent){
   $("#results").empty()
-  var teamsPerEvent = 2
-  var numberOfTeams = $('#teams').val()
-  var numberOfEvents = $('#events').val()
-  var numberOfRounds = calculatenumberOfRounds(numberOfTeams, numberOfEvents)
   var schedule = new Array()
   schedule.rounds = initializeRounds(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent)
   schedule = addOtherEvents(schedule, numberOfTeams, numberOfEvents, teamsPerEvent)
@@ -37,7 +114,7 @@ $("#create").on("click", function() {
     }
   }
   outputSchedule(schedule)
-})
+}
 
 function calculateEmptyEvents(numberOfTeams, numberOfEvents){
   var result = 0
@@ -163,7 +240,7 @@ function addOtherEvents(schedule,numberOfTeams, numberOfEvents, teamsPerEvent){
     for(var roundCounter=0; roundCounter < schedule.rounds.length; roundCounter++){
       for(var i=0; i<byeRounds; i++){
         byeEvents = {
-          eventName: "Rest "+(i+1),
+          eventName: "Rest",
           teams: []
         }
         schedule.rounds[roundCounter].events.push(byeEvents)
@@ -202,4 +279,55 @@ function outputSchedule(schedule){
       }
     }
   }
+}
+
+function teamEntryPage(){
+  $('#questions').html(
+    '<div class="container">'+
+      '<div class="row">'+
+        '<div class="col-sm-12">'+
+          '<div class="row">'+
+            '<label class="col-sm-12" for="teams">Please enter the team names:</label>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="col-sm-3"></div>'+
+              '<input class="col-sm-6" id="teams"/>'+
+              '<div class="col-sm-3">'+
+                '<div id="button">'+
+                  '<button id="addTeam" class="btn btn-primary">Add Team</button>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+          '<div class="row" id="teamAppender">'+
+          '</div>'+
+        '</div>'+
+    '</div>'
+  )
+}
+
+function eventEntryPage(){
+  $('#questions').empty()
+  $('#questions').html(
+    '<div class="container">'+
+      '<div class="row">'+
+        '<div class="col-sm-12">'+
+          '<div class="row">'+
+            '<label class="col-sm-12" for="events">Please enter the event names:</label>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="col-sm-3"></div>'+
+              '<input class="col-sm-6" id="events"/>'+
+              '<div class="col-sm-3">'+
+                '<div id="button">'+
+                  '<button id="addEvent" class="btn btn-primary">Add Event</button>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+          '<div class="row" id="eventAppender">'+
+        '</div>'+
+      '</div>'+
+    '</div>'
+  )
 }
