@@ -1,10 +1,9 @@
+body{
+  text-align: center;
+}
 tr, td, th{
   border: 1px solid black;
-  padding: 2px !important;
-}
-
-td{
-  text-align: center;
+  text-align: center !important;
 }
 
 #schedule{

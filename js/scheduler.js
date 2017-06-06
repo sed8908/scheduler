@@ -1,24 +1,23 @@
 $("#create").on("click", function() {
   $("#results").empty()
-  var numOfTeams = 2 //TODO: replace with an input
-  var teamLength = $('#teams').val()
-  var eventLength = $('#events').val()
-  var roundsLength = calculateRoundsLength(teamLength, eventLength)
-  outputScheduleHeader(eventLength);
+  var teamsPerEvent = 2
+  var numberOfTeams = $('#teams').val()
+  var numberOfEvents = $('#events').val()
+  var numberOfRounds = calculatenumberOfRounds(numberOfTeams, numberOfEvents)
   var schedule = new Array()
-  schedule.rounds = initializeRounds(roundsLength, eventLength, teamLength, numOfTeams)
-  schedule = addEmptyEvents(schedule, teamLength, eventLength, numOfTeams)
-  //schedule = addByeRounds(schedule)
+  schedule.rounds = initializeRounds(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent)
+  schedule = addOtherEvents(schedule, numberOfTeams, numberOfEvents, teamsPerEvent)
+  var clearedCheck = 0
   main:
-  for(var roundCounter=0; roundCounter < roundsLength; roundCounter++){
-    for(var eventCounter=0; eventCounter < eventLength; eventCounter++){
-      for(var teamCounter=0; teamCounter < numOfTeams; teamCounter++){
-        var team = getRandomInt(0, teamLength)
+  for(var roundCounter=0; roundCounter < schedule.rounds.length; roundCounter++){
+    for(var eventCounter=0; eventCounter < schedule.rounds[roundCounter].events.length; eventCounter++){
+      for(var teamCounter=0; teamCounter < teamsPerEvent; teamCounter++){
+        var team = getRandomInt(0, numberOfTeams)
         var safetyCheck = 0
-        var clearedCheck = 0
+
         while(schedule.rounds[roundCounter].events[eventCounter].teams.length < 2){
           safetyCheck++
-          team = getRandomInt(0, teamLength)
+          team = getRandomInt(0, numberOfTeams)
           if(teamIsFree(team, eventCounter, roundCounter, schedule)){
             schedule.rounds[roundCounter].events[eventCounter].teams.push(team)
           }
@@ -28,7 +27,8 @@ $("#create").on("click", function() {
             teamCounter=0;
             eventCounter=0;
             safetyCheck = 0;
-            if(clearedCheck > 10){
+            if(clearedCheck > 50){
+              alert("Whoops! Something is taking too long. Try again to see if the problem persists. If so, tough luck.")
               break main
             }
           }
@@ -36,21 +36,21 @@ $("#create").on("click", function() {
       }
     }
   }
-  outputScheduleBody(schedule);
+  outputSchedule(schedule)
 })
 
-function calculateEmptyEvents(teamLength, eventLength){
+function calculateEmptyEvents(numberOfTeams, numberOfEvents){
   var result = 0
-  if(eventLength > (teamLength/2)){
-    result = eventLength - (teamLength/2)
+  if(numberOfEvents > (numberOfTeams/2)){
+    result = numberOfEvents - (numberOfTeams/2)
   }
   return result
 }
 
-function calculateByeRounds(teamLength, eventLength){
+function calculateByeRounds(numberOfTeams, numberOfEvents){
   var result = 0
-  if(eventLength < (teamLength/2)){
-    result = (teamLength/2)-eventLength
+  if(numberOfEvents < (numberOfTeams/2)){
+    result = (numberOfTeams/2)-numberOfEvents
   }
   return result
 }
@@ -78,50 +78,18 @@ function clearRound(schedule, roundCounter){
   return schedule
 }
 
-function calculateRoundsLength(teamLength, eventLength){
+function calculatenumberOfRounds(numberOfTeams, numberOfEvents){
   var result = 0
-  teamLength = parseInt(teamLength)
-  eventLength = parseInt(eventLength)
-  if(teamLength/2 >= eventLength){
-    result = (teamLength/2)
+  numberOfTeams = parseInt(numberOfTeams)
+  numberOfEvents = parseInt(numberOfEvents)
+  if(numberOfTeams/2 >= numberOfEvents){
+    result = (numberOfTeams/2)
   }
   else {
-    result = eventLength
+    result = numberOfEvents
   }
   result = Math.ceil(result)
   return result
-}
-
-function outputScheduleHeader(eventLength){
-  $("#results").append("<table id='schedule' class='container'></table>")
-
-  // $("#schedule").append("<th></th>")
-  for(var i=1; i <= eventLength; i++){
-    $("#schedule").append("<th>Event "+i+"</th>")
-  }
-
-}
-
-function outputScheduleBody(schedule){
-  for(var i=0; i<schedule.rounds.length; i++){
-    $("#schedule").append("<tr id='round"+i+"'></tr>")
-    $("#round"+i).append("<td>"+schedule.rounds[i].roundName+"</td>")
-    for(var j=0; j<schedule.rounds[i].events.length; j++){
-      $("#round"+i).append("<td id='r"+i+"e"+j+"'></td>")
-      for(var k=0; k<schedule.rounds[i].events[j].teams.length; k++){
-        var team = schedule.rounds[i].events[j].teams[k]
-        if(team < 0){
-          $("#r"+i+"e"+j).append("-")
-        }else{
-          $("#r"+i+"e"+j).append(parseInt(team)+1)
-        }
-        if(k < schedule.rounds[i].events[j].teams.length-1){
-          $("#r"+i+"e"+j).append(" & ")
-        }
-      }
-    }
-  }
-
 }
 
 function alreadyInRound(team, roundCounter, schedule){
@@ -157,14 +125,14 @@ function alreadyInEvent(team, eventCounter, schedule){
   return result
 }
 
-function initializeRounds(roundsLength, eventLength, teamLength, numOfTeams){
+function initializeRounds(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent){
   var rounds = []
-  for(var i=0; i < roundsLength; i++){
+  for(var i=0; i < numberOfRounds; i++){
     rounds[i] = {
       roundName: "Round "+(i+1),
       events: []
     }
-    for(var j=0; j < eventLength; j++){
+    for(var j=0; j < numberOfEvents; j++){
       rounds[i].events[j] = {
         eventName: "Event "+(j+1),
         teams: []
@@ -174,19 +142,31 @@ function initializeRounds(roundsLength, eventLength, teamLength, numOfTeams){
   return rounds
 }
 
-function addEmptyEvents(schedule,teamLength, eventLength, numOfTeams){
-  var emptyEvents = calculateEmptyEvents(teamLength, eventLength)
-  // var byeRounds = calculateByeRounds(teamLength, eventLength)
+function addOtherEvents(schedule,numberOfTeams, numberOfEvents, teamsPerEvent){
+  var emptyEvents = calculateEmptyEvents(numberOfTeams, numberOfEvents)
+  var byeRounds = calculateByeRounds(numberOfTeams, numberOfEvents)
   if(emptyEvents != 0){
     for(var roundCounter=0; roundCounter <schedule.rounds.length; roundCounter++){
       for(var i=0; i < emptyEvents; i++){
         var eventCounter = roundCounter+i
         if(eventCounter >= schedule.rounds[roundCounter].events.length){
-          eventCounter = eventCounter - eventLength
+          eventCounter = eventCounter - numberOfEvents
         }
-        for(var j=0; j < numOfTeams; j++){
+        for(var j=0; j < teamsPerEvent; j++){
           schedule.rounds[roundCounter].events[eventCounter].teams.push(-1)
         }
+      }
+    }
+  }
+  if(byeRounds != 0 ){
+    var byeEvents = []
+    for(var roundCounter=0; roundCounter < schedule.rounds.length; roundCounter++){
+      for(var i=0; i<byeRounds; i++){
+        byeEvents = {
+          eventName: "Rest "+(i+1),
+          teams: []
+        }
+        schedule.rounds[roundCounter].events.push(byeEvents)
       }
     }
   }
@@ -197,4 +177,30 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function outputSchedule(schedule){
+  console.log(schedule)
+  $("#results").append("<table id='schedule' class='container'></table>")
+  for(var i=0; i < schedule.rounds[0].events.length; i++){
+    $("#schedule").append("<th>"+schedule.rounds[0].events[i].eventName+"</th>")
+  }
+  for(var i=0; i<schedule.rounds.length; i++){
+    $("#schedule").append("<tr id='round"+i+"'></tr>")
+    $("#round"+i).append("<td>"+schedule.rounds[i].roundName+"</td>")
+    for(var j=0; j<schedule.rounds[i].events.length; j++){
+      $("#round"+i).append("<td id='r"+i+"e"+j+"'></td>")
+      for(var k=0; k<schedule.rounds[i].events[j].teams.length; k++){
+        var team = schedule.rounds[i].events[j].teams[k]
+        if(team < 0){
+          $("#r"+i+"e"+j).append("-")
+        }else{
+          $("#r"+i+"e"+j).append(parseInt(team)+1)
+        }
+        if(k < schedule.rounds[i].events[j].teams.length-1){
+          $("#r"+i+"e"+j).append(" & ")
+        }
+      }
+    }
+  }
 }
