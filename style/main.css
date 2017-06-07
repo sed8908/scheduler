@@ -11,5 +11,6 @@ tr, td, th{
 }
 
 ul{
-  list-style-type:none
+  text-align: left;
+  list-style-type:none;
 }
