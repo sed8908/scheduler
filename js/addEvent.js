@@ -6,12 +6,10 @@ for(var i=0; i<eventNames.length; i++){
   }
 }
 $("#eventAppender").html(
-  '<div class="col-sm-4"></div>'+
-    '<pre class="col-sm-4 well well-sm">'+
+    '<pre class="col-sm-12 well well-sm">'+
       '<ul id="eventNames">'+
       '</ul>'+
-    '</pre>'+
-  '<div class="col-sm-4"></div>'
+    '</pre>'
 )
 for(var i=0; i<eventNames.length; i++){
   $("#eventNames").append(
@@ -55,9 +53,11 @@ function newButtonChecker(){
   if($("#eventNames li").length == sessionStorage.numberOfEvents) {
     sessionStorage.eventNames = eventNames
     $("#button").html(
-    '<button id="editEvent" class="btn btn-primary">Edit events</button>'+
-    '<button id="createSchedule" class="btn btn-primary">Create Schedule</button></button>'+
-    '<button id="reset" class="btn btn-primary">Start Over</button>'
+    '<div class="btn-group btn-group-justified">'+
+      '<button id="editEvent" class="btn btn-primary">Edit events</button>'+
+      '<button id="createSchedule" class="btn btn-primary">Create Schedule</button></button>'+
+      '<button id="reset" class="btn btn-primary">Start Over</button>'+
+    '</div>'
   )
   }
 }

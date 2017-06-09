@@ -6,12 +6,10 @@ for(var i=0; i<teamNames.length; i++){
   }
 }
 $("#teamAppender").html(
-  '<div class="col-sm-4"></div>'+
-    '<pre class="col-sm-4 well well-sm">'+
+    '<pre class="col-sm-12 well well-sm">'+
       '<ul id="teamNames">'+
       '</ul>'+
-    '</pre>'+
-  '<div class="col-sm-4"></div>'
+    '</pre>'
 )
 for(var i=0; i<teamNames.length; i++){
   $("#teamNames").append(
@@ -22,6 +20,7 @@ for(var i=0; i<teamNames.length; i++){
 }
 
 newButtonChecker()
+
 $("#addTeam").on("click", function(){
   if(inputIsBlank()){
     alert("Whoops, you have to enter in a name for this to work.")
@@ -51,13 +50,28 @@ $("body").on("click", "#reset", function(){
   window.location.href = "../index.html"
 })
 
+$("#teams").on("keyup", function(){
+  if(event.keyCode == 13){
+    $("#addTeam").click()
+  }
+})
+
 function newButtonChecker(){
   if($("#teamNames li").length == sessionStorage.numberOfTeams) {
     sessionStorage.teamNames = teamNames
+    $("#teams").css("display", "none")
     $("#button").html(
-    '<button id="editTeam" class="btn btn-primary">Edit Teams</button>'+
-    '<button id="addEvents" class="btn btn-primary">Add Events</button>'+
-    '<button id="reset" class="btn btn-primary">Start Over</button>'
+    '<div class="btn-group btn-group-justified" role="group">'+
+      '<div class="btn-group" role="group">'+
+        '<button id="editTeam" class="btn btn-primary" role="group">Edit Teams</button>'+
+      '</div>'+
+      '<div class="btn-group" role="group">'+
+        '<button id="addEvents" class="btn btn-primary" role="group">Add Events</button>'+
+      '</div>'+
+      '<div class="btn-group" role="group">'+
+        '<button id="reset" class="btn btn-primary" role="group">Start Over</button>'+
+      '</div>'+
+    '</div>'
   )
   }
 }

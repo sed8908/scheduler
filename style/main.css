@@ -10,7 +10,7 @@ tr, td, th{
   text-align: left;
 }
 
-ul{
-  text-align: left;
+#teamNames{
+  text-align: center;
   list-style-type:none;
 }

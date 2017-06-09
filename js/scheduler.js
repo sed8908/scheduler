@@ -198,7 +198,7 @@ function addOtherEvents(schedule,numberOfTeams, numberOfEvents, teamsPerEvent){
     for(var roundCounter=0; roundCounter < schedule.rounds.length; roundCounter++){
       for(var i=0; i<byeRounds; i++){
         byeEvents = {
-          eventName: "Rest",
+          eventName: "&nbsp;&nbsp;&nbsp;Rest&nbsp;&nbsp;&nbsp;",
           teams: []
         }
         schedule.rounds[roundCounter].events.push(byeEvents)
