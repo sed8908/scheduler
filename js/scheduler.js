@@ -95,7 +95,7 @@ function clearRound(schedule, roundCounter){
   for(var i=0; i < schedule.rounds[roundCounter].events.length;i++){
       if(schedule.rounds[roundCounter].events[i].teams[0] != -1){
         schedule.rounds[roundCounter].events[i] ={
-          eventName: "Event "+(i+1),
+          eventName: schedule.rounds[roundCounter].events[i].eventName,
           teams: []
         }
       }
