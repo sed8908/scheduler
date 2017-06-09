@@ -1,4 +1,3 @@
-debugger
 var eventNames = sessionStorage.eventNames.split(',')
 
 for(var i=0; i<eventNames.length; i++){
@@ -24,8 +23,6 @@ for(var i=0; i<eventNames.length; i++){
 
 newButtonChecker()
 $("#addEvent").on("click", function(){
-  console.log($("#eventNames li").length)
-  debugger
   if(inputIsBlank()){
     alert("Whoops, you have to enter in a name for this to work.")
   }else {
@@ -46,8 +43,8 @@ $("body").on("click", "#editEvent", function(){
   window.location.href = "editevents.html"
 })
 
-$("body").on("click", "#addEvents", function(){
-  window.location.href = "addEvents.html"
+$("body").on("click", "#createSchedule", function(){
+  window.location.href = "schedule.html"
 })
 
 $("body").on("click", "#reset", function(){
@@ -59,6 +56,7 @@ function newButtonChecker(){
     sessionStorage.eventNames = eventNames
     $("#button").html(
     '<button id="editEvent" class="btn btn-primary">Edit events</button>'+
+    '<button id="createSchedule" class="btn btn-primary">Create Schedule</button></button>'+
     '<button id="reset" class="btn btn-primary">Start Over</button>'
   )
   }

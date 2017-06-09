@@ -33,7 +33,7 @@ function createSchedule(numberOfEvents, numberOfTeams, teamsPerEvent, eventNames
       for(var teamCounter=0; teamCounter < teamsPerEvent; teamCounter++){
         var team = getRandomInt(0, numberOfTeams)
         var safetyCheck = 0
-
+        var scheduleRedo = 0
         while(schedule.rounds[roundCounter].events[eventCounter].teams.length < 2){
           safetyCheck++
           team = getRandomInt(0, numberOfTeams)
@@ -41,14 +41,20 @@ function createSchedule(numberOfEvents, numberOfTeams, teamsPerEvent, eventNames
             schedule.rounds[roundCounter].events[eventCounter].teams.push(team)
           }
           if(safetyCheck > 50){
-            clearedCheck++
+            scheduleRedo++
             schedule = clearRound(schedule, roundCounter)
             teamCounter=0;
             eventCounter=0;
             safetyCheck = 0;
-            if(clearedCheck > 50){
-              alert("Whoops! Something is taking too long. Try again to see if the problem persists. If so, tough luck.")
-              break main
+            if(scheduleRedo > 50){
+              scheduleRedo = 0
+              schedule = []
+              createSchedule(numberOfEvents, numberOfTeams, teamsPerEvent, eventNames)
+              clearedCheck++
+              if(clearedCheck > 5){
+                alert("Whoops! Something is taking too long. Try again to see if the problem persists. If so, tough luck.")
+                break main
+              }
             }
           }
         }
@@ -146,8 +152,6 @@ function alreadyInEvent(team, eventCounter, schedule){
 
 function initializeRounds(numberOfRounds, numberOfEvents, numberOfTeams, teamsPerEvent, eventNames){
   var rounds = []
-  console.log(teamNames)
-  console.log(eventNames)
   for(var i=0; i < numberOfRounds; i++){
     rounds[i] = {
       roundName: "Round "+(i+1),
